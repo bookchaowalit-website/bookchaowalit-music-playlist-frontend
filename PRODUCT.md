@@ -10,6 +10,13 @@ Portfolio repository under Book Dev. This brief records ownership and the
 current honest status so the nested tree is not an empty shell in the task
 system.
 
+## Current product truth
+
+This is a small, client-side listening shelf for browsing a curated set of
+tracks by mood. Search, mood filtering, and selecting a track are the product
+loop. It does not stream audio, connect to a music provider, or persist a
+shared playlist.
+
 ## Runnable path
 
 See `README.md` for install and run instructions when present.
