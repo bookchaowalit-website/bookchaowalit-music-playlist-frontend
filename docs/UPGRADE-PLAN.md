@@ -32,3 +32,4 @@ Score: 7/10 (was 5/10) — the "playlist" now exists: add/reorder/remove with pe
     ASCII digits with 00-59 minute/second fields.
   - `formatDuration` printed `NaN:NaN`, negative or fractional seconds; it now
     floors and clamps to `0:00`.
+- Security deps: `next` 16.1.6 -> 16.3.8 (and `eslint-config-next`) clears critical GHSA-2xp9-vwfh-vxw4 (Image Optimization RCE) plus bundled postcss/sharp highs; lockfile regenerated with same-major `npm audit fix`. `npm audit --omit=dev`: C1/H3/M1/L0 [nanoid:h,next:c,postcss:h,sharp:h] -> C0/H0/M0/L0.
