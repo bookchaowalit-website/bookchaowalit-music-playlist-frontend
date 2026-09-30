@@ -59,3 +59,13 @@ export function parsePlaylist(raw: string | null, tracks: Track[] = TRACKS): str
     return null;
   }
 }
+
+/** Plain-text running order (numbered, with durations and total) for copying elsewhere. */
+export function playlistText(ids: string[], tracks: Track[] = TRACKS): string {
+  const rows = ids
+    .map((id) => tracks.find((track) => track.id === id))
+    .filter((track): track is Track => Boolean(track))
+    .map((track, index) => `${String(index + 1).padStart(2, "0")}. ${track.artist} — ${track.title} (${track.duration})`);
+  if (rows.length === 0) return "";
+  return [...rows, `Total: ${formatDuration(playlistDuration(ids, tracks))}`].join("\n");
+}

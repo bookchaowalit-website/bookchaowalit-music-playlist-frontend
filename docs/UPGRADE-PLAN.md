@@ -7,7 +7,7 @@ Score: 7/10 (was 5/10) — the "playlist" now exists: add/reorder/remove with pe
 ## Backlog
 
 - P1: Let the user add their own track entries (title/artist/duration) to the shelf.
-- P1: Export the running order as text/M3U.
+- P2: M3U export once tracks carry a real media URL (an M3U without paths would be misleading).
 - P2: Replace the `--font-geist-mono` CSS reference (font is never loaded) with a loaded mono face or system stack.
 - P2: Playwright smoke test for add/reorder/remove.
 
@@ -23,3 +23,4 @@ Score: 7/10 (was 5/10) — the "playlist" now exists: add/reorder/remove with pe
 ## Done in this pass (pass 2)
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
+- "Copy running order" exports the playlist as numbered plain text with durations and total (`playlistText` in `lib/playlist.ts`, tested); clipboard result announced via `role="status"`; visible focus on shelf buttons.

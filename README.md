@@ -6,6 +6,7 @@ Track list with moods.
 - Search and mood filter over a small curated shelf
 - Stage a track, add it to your playlist, reorder or remove it
 - Running order and total duration saved in localStorage
+- Copy the running order as plain text (numbered, with durations and total)
 
 ## Limitations
 - Static demo content; no audio stream or music provider is attached

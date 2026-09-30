@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterTracks, formatDuration, moveInPlaylist, parseDuration, parsePlaylist, playlistDuration, toggleInPlaylist, TRACKS } from "./playlist";
+import { filterTracks, formatDuration, moveInPlaylist, parseDuration, parsePlaylist, playlistDuration, playlistText, toggleInPlaylist, TRACKS } from "./playlist";
 
 describe("filterTracks", () => {
   it("combines mood and case-insensitive search", () => {
@@ -35,5 +35,16 @@ describe("playlist editing", () => {
     expect(parsePlaylist(null)).toBeNull();
     expect(parsePlaylist("{")).toBeNull();
     expect(parsePlaylist(JSON.stringify(["night", "night", 3, "ghost", "tape"]))).toEqual(["night", "tape"]);
+  });
+});
+
+describe("playlistText", () => {
+  it("numbers the running order and adds the total", () => {
+    expect(playlistText(["night", "compile"])).toBe("01. Night Shift — After the deploy (5:21)\n02. Book / Field Notes — Lo-fi compile (3:12)\nTotal: 8:33");
+  });
+
+  it("skips unknown ids and is empty for an empty playlist", () => {
+    expect(playlistText(["missing"])).toBe("");
+    expect(playlistText([])).toBe("");
   });
 });

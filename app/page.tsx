@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { filterTracks, formatDuration, MOODS, moveInPlaylist, parsePlaylist, playlistDuration, toggleInPlaylist, TRACKS, type MoodFilter } from "@/lib/playlist";
+import { filterTracks, formatDuration, MOODS, moveInPlaylist, parsePlaylist, playlistDuration, playlistText, toggleInPlaylist, TRACKS, type MoodFilter } from "@/lib/playlist";
 import { useStoredState } from "@/lib/use-stored-state";
 
 const EMPTY: string[] = [];
@@ -23,6 +23,16 @@ export default function Home() {
   const selected = TRACKS.find((track) => track.id === selectedId) ?? visible[0] ?? TRACKS[0];
   const inPlaylist = playlist.includes(selected.id);
   const totalTime = formatDuration(playlistDuration(playlist));
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const copyOrder = async () => {
+    try {
+      await navigator.clipboard.writeText(playlistText(playlist));
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+    window.setTimeout(() => setCopyState("idle"), 1800);
+  };
 
   return (
     <main className="listening-shell">
@@ -78,6 +88,7 @@ export default function Home() {
         <section className="playlist-panel" aria-labelledby="playlist-title">
           <div className="shelf-heading"><div><span className="eyebrow">YOUR PLAYLIST</span><strong id="playlist-title">Tonight&apos;s running order</strong></div><span aria-live="polite">{playlist.length} {playlist.length === 1 ? "track" : "tracks"} · {totalTime}</span></div>
           {playlist.length === 0 ? <p className="empty-shelf">Stage a track and add it to start a running order. Saved in this browser only.</p> : <ol className="playlist-list">{playlist.map((id, index) => { const track = TRACKS.find((item) => item.id === id); if (!track) return null; return <li key={id}><span className="track-index">{String(index + 1).padStart(2, "0")}</span><span className="track-copy"><strong>{track.title}</strong><small>{track.artist} · {track.duration}</small></span><span className="playlist-actions"><button type="button" onClick={() => setPlaylist((ids) => moveInPlaylist(ids, id, -1))} disabled={index === 0} aria-label={`Move ${track.title} up`}>↑</button><button type="button" onClick={() => setPlaylist((ids) => moveInPlaylist(ids, id, 1))} disabled={index === playlist.length - 1} aria-label={`Move ${track.title} down`}>↓</button><button type="button" onClick={() => setPlaylist((ids) => toggleInPlaylist(ids, id))} aria-label={`Remove ${track.title} from playlist`}>✕</button></span></li>; })}</ol>}
+          {playlist.length > 0 && <div className="playlist-export"><button type="button" onClick={copyOrder}>{copyState === "copied" ? "Copied running order" : copyState === "failed" ? "Copy blocked by browser" : "Copy running order"}</button><span className="sr-only" role="status">{copyState === "copied" ? "Running order copied to the clipboard." : copyState === "failed" ? "The browser blocked clipboard access." : ""}</span></div>}
         </section>
 
         <footer className="listening-footer"><span>BOOK / DEV TOOLS</span><span>SEARCH · FILTER · STAGE · QUEUE</span></footer>
