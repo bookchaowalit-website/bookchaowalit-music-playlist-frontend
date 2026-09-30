@@ -1,11 +1,12 @@
 import { handleRpc } from "@/lib/mcp";
+import { SITE_URL } from "@/lib/site";
 
 export const runtime = "edge";
 
 const APP = {
   name: "Music Playlist",
   description: "A local curated listening shelf for focused work.",
-  url: "https://bookchaowalit-music-playlist-frontend.vercel.app",
+  url: SITE_URL,
 };
 
 export async function POST(request: Request) {

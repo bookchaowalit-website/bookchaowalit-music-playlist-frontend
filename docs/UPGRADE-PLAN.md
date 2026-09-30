@@ -19,3 +19,7 @@ Score: 7/10 (was 5/10) — the "playlist" now exists: add/reorder/remove with pe
 - Catalog, filtering, durations and playlist editing moved to `lib/playlist.ts` (tested); stored playlists are validated against known track ids.
 - New playlist panel: add from the staged card, move up/down, remove, live total duration (`aria-live`), all buttons labelled.
 - Mood filter changed from an incomplete `tablist` (no tabpanel) to a pressed-button group; search input is `type=search`.
+
+## Done in this pass (pass 2)
+
+- Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
