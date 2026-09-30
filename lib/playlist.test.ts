@@ -48,3 +48,26 @@ describe("playlistText", () => {
     expect(playlistText([])).toBe("");
   });
 });
+
+describe("duration edge cases", () => {
+  it("rejects literals Number() accepts but a duration never has", () => {
+    expect(parseDuration("0x1:00")).toBe(0);
+    expect(parseDuration("1e1:00")).toBe(0);
+    expect(parseDuration(":30")).toBe(0);
+    expect(parseDuration("3:")).toBe(0);
+    expect(parseDuration("3:-0")).toBe(0);
+  });
+
+  it("rejects seconds or minutes past 59 instead of silently overflowing", () => {
+    expect(parseDuration("3:75")).toBe(0);
+    expect(parseDuration("1:60:00")).toBe(0);
+    expect(parseDuration("75:00")).toBe(4500);
+    expect(parseDuration(" 3:12 ")).toBe(192);
+  });
+
+  it("never formats NaN, negatives or fractional seconds", () => {
+    expect(formatDuration(Number.NaN)).toBe("0:00");
+    expect(formatDuration(-5)).toBe("0:00");
+    expect(formatDuration(90.6)).toBe("1:30");
+  });
+});

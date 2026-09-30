@@ -24,3 +24,11 @@ Score: 7/10 (was 5/10) — the "playlist" now exists: add/reorder/remove with pe
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
 - "Copy running order" exports the playlist as numbered plain text with durations and total (`playlistText` in `lib/playlist.ts`, tested); clipboard result announced via `role="status"`; visible focus on shelf buttons.
+
+## Done in this pass (pass 3)
+- Edge-case pass on `lib/playlist.ts` (regression tests in `lib/playlist.test.ts`):
+  - `parseDuration` used `Number()` per field, so `0x1:00` / `1e1:00` / `:30`
+    parsed as durations and `3:75` overflowed silently. It now accepts only
+    ASCII digits with 00-59 minute/second fields.
+  - `formatDuration` printed `NaN:NaN`, negative or fractional seconds; it now
+    floors and clamps to `0:00`.

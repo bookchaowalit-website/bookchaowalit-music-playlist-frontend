@@ -15,14 +15,20 @@ export function filterTracks(tracks: Track[], mood: MoodFilter, query: string): 
   return tracks.filter((track) => (mood === "All" || track.mood === mood) && `${track.title} ${track.artist} ${track.mood}`.toLowerCase().includes(needle));
 }
 
-/** "m:ss" or "h:mm:ss" to seconds; invalid input counts as 0. */
+/**
+ * "m:ss" or "h:mm:ss" to seconds; invalid input counts as 0. Only plain ASCII
+ * digits are accepted (Number() would also take "0x1", "1e1" or ""), and
+ * minutes/seconds after the first field must be 00-59.
+ */
 export function parseDuration(value: string): number {
-  const parts = value.split(":").map((part) => Number(part));
-  if (parts.length < 2 || parts.length > 3 || parts.some((n) => !Number.isInteger(n) || n < 0)) return 0;
+  const match = /^(\d+):([0-5]\d)(?::([0-5]\d))?$/.exec(value.trim());
+  if (!match) return 0;
+  const parts = match.slice(1).filter((part): part is string => part !== undefined).map(Number);
   return parts.reduce((total, n) => total * 60 + n, 0);
 }
 
-export function formatDuration(seconds: number): string {
+export function formatDuration(value: number): string {
+  const seconds = Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
