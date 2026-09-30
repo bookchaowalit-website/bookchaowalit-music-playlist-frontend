@@ -85,3 +85,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   .card-rule { margin-left: 16px; margin-right: 16px; }
   .listening-footer { gap: 10px; flex-direction: column; }
 }
+.playlist-toggle { margin: 22px 28px 0; align-self: flex-start; padding: 10px 14px; border: 1px solid var(--mint); background: transparent; color: var(--mint); font: 11px var(--font-geist-mono), monospace; letter-spacing: .06em; cursor: pointer; }
+.playlist-toggle[aria-pressed="true"] { background: var(--mint); color: var(--ink); }
+.playlist-panel { margin-top: 1px; border: 1px solid var(--line); background: var(--violet); }
+.playlist-list { margin: 0; padding: 0; list-style: none; }
+.playlist-list li { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 20px; border-top: 1px solid var(--line); }
+.playlist-actions { display: flex; gap: 6px; }
+.playlist-actions button { width: 32px; height: 32px; border: 1px solid var(--line); background: transparent; color: var(--paper); cursor: pointer; }
+.playlist-actions button:hover:not(:disabled) { border-color: var(--mint); color: var(--mint); }
+.playlist-actions button:disabled { opacity: .35; cursor: not-allowed; }
+@media (max-width: 720px) { .playlist-toggle { margin-left: 16px; margin-right: 16px; } .playlist-list li { padding: 12px 14px; gap: 10px; grid-template-columns: 30px minmax(0, 1fr) auto; } }

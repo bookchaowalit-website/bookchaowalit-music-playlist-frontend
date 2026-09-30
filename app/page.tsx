@@ -1,17 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { filterTracks, formatDuration, MOODS, moveInPlaylist, parsePlaylist, playlistDuration, toggleInPlaylist, TRACKS, type MoodFilter } from "@/lib/playlist";
+import { useStoredState } from "@/lib/use-stored-state";
 
-type Mood = "Focus" | "Energy" | "Night";
-type Track = { id: string; title: string; artist: string; mood: Mood; duration: string; note: string };
-
-const TRACKS: Track[] = [
-  { id: "compile", title: "Lo-fi compile", artist: "Book / Field Notes", mood: "Focus", duration: "3:12", note: "For long PR reviews and the quiet middle of a build." },
-  { id: "bright", title: "Bright room", artist: "Small Signals", mood: "Energy", duration: "4:08", note: "A little lift for when the task needs a second start." },
-  { id: "night", title: "After the deploy", artist: "Night Shift", mood: "Night", duration: "5:21", note: "Low light, one tab open, the work finally still." },
-  { id: "tape", title: "Tape hiss / clear head", artist: "Soft Circuit", mood: "Focus", duration: "2:44", note: "A short loop for reading one more page without rushing." },
-];
-const MOODS = ["All", "Focus", "Energy", "Night"] as const;
+const EMPTY: string[] = [];
 
 function Waveform() {
   return (
@@ -23,14 +16,13 @@ function Waveform() {
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [mood, setMood] = useState<(typeof MOODS)[number]>("All");
+  const [mood, setMood] = useState<MoodFilter>("All");
   const [selectedId, setSelectedId] = useState(TRACKS[0].id);
-  const visible = useMemo(() => TRACKS.filter((track) => {
-    const matchesMood = mood === "All" || track.mood === mood;
-    const haystack = `${track.title} ${track.artist} ${track.mood}`.toLowerCase();
-    return matchesMood && haystack.includes(query.toLowerCase());
-  }), [mood, query]);
+  const [playlist, setPlaylist] = useStoredState("music-playlist-v1", EMPTY, parsePlaylist);
+  const visible = useMemo(() => filterTracks(TRACKS, mood, query), [mood, query]);
   const selected = TRACKS.find((track) => track.id === selectedId) ?? visible[0] ?? TRACKS[0];
+  const inPlaylist = playlist.includes(selected.id);
+  const totalTime = formatDuration(playlistDuration(playlist));
 
   return (
     <main className="listening-shell">
@@ -53,9 +45,9 @@ export default function Home() {
           <aside className="track-shelf">
             <div className="shelf-heading"><div><span className="eyebrow">THE SHELF</span><strong>Choose a track</strong></div><span>{visible.length} shown</span></div>
             <div className="shelf-controls">
-              <label><span className="sr-only">Search tracks</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a track" /></label>
-              <div className="mood-tabs" role="tablist" aria-label="Filter by mood">
-                {MOODS.map((item) => <button key={item} type="button" role="tab" aria-selected={mood === item} className={mood === item ? "active" : ""} onClick={() => setMood(item)}>{item}</button>)}
+              <label><span className="sr-only">Search tracks</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a track" /></label>
+              <div className="mood-tabs" role="group" aria-label="Filter by mood">
+                {MOODS.map((item) => <button key={item} type="button" aria-pressed={mood === item} className={mood === item ? "active" : ""} onClick={() => setMood(item)}>{item}</button>)}
               </div>
             </div>
             <div className="track-list">
@@ -77,12 +69,18 @@ export default function Home() {
             <h2>{selected.title}</h2>
             <p className="artist-line">{selected.artist}</p>
             <p className="track-note">{selected.note}</p>
+            <button type="button" className="playlist-toggle" onClick={() => setPlaylist((ids) => toggleInPlaylist(ids, selected.id))} aria-pressed={inPlaylist}>{inPlaylist ? "In your playlist ✓ — remove" : "Add to playlist +"}</button>
             <div className="card-rule" />
             <p className="honesty-note"><b>READ BEFORE PLAY</b><br />This portfolio surface stages a curated track card. It does not attach an audio stream or music provider.</p>
           </article>
         </section>
 
-        <footer className="listening-footer"><span>BOOK / DEV TOOLS</span><span>SEARCH · FILTER · STAGE</span></footer>
+        <section className="playlist-panel" aria-labelledby="playlist-title">
+          <div className="shelf-heading"><div><span className="eyebrow">YOUR PLAYLIST</span><strong id="playlist-title">Tonight&apos;s running order</strong></div><span aria-live="polite">{playlist.length} {playlist.length === 1 ? "track" : "tracks"} · {totalTime}</span></div>
+          {playlist.length === 0 ? <p className="empty-shelf">Stage a track and add it to start a running order. Saved in this browser only.</p> : <ol className="playlist-list">{playlist.map((id, index) => { const track = TRACKS.find((item) => item.id === id); if (!track) return null; return <li key={id}><span className="track-index">{String(index + 1).padStart(2, "0")}</span><span className="track-copy"><strong>{track.title}</strong><small>{track.artist} · {track.duration}</small></span><span className="playlist-actions"><button type="button" onClick={() => setPlaylist((ids) => moveInPlaylist(ids, id, -1))} disabled={index === 0} aria-label={`Move ${track.title} up`}>↑</button><button type="button" onClick={() => setPlaylist((ids) => moveInPlaylist(ids, id, 1))} disabled={index === playlist.length - 1} aria-label={`Move ${track.title} down`}>↓</button><button type="button" onClick={() => setPlaylist((ids) => toggleInPlaylist(ids, id))} aria-label={`Remove ${track.title} from playlist`}>✕</button></span></li>; })}</ol>}
+        </section>
+
+        <footer className="listening-footer"><span>BOOK / DEV TOOLS</span><span>SEARCH · FILTER · STAGE · QUEUE</span></footer>
       </div>
     </main>
   );
